@@ -956,6 +956,64 @@ button {
   gap: 12px;
 }
 
+.tag-management-section {
+  display: grid;
+  gap: 12px;
+}
+
+.tag-management-list {
+  display: grid;
+  gap: 10px;
+}
+
+.tag-management-list article {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e8ded4;
+  border-radius: 8px;
+  background: #fffaf4;
+  padding: 12px;
+}
+
+.tag-management-list article > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.tag-management-list article > div:last-child {
+  display: flex;
+  gap: 8px;
+}
+
+.tag-management-list strong,
+.tag-management-list span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tag-management-list span {
+  color: #7b6c5f;
+}
+
+.tag-management-list button {
+  border-radius: 999px;
+  background: #efe5dc;
+  color: #2c261f;
+  padding: 8px 11px;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.tag-management-list .danger-text-button {
+  background: #fff1ee;
+  color: #b23b2d;
+}
+
 .app-install-section {
   display: grid;
   gap: 10px;
@@ -1228,6 +1286,10 @@ button {
 
 @media (max-width: 380px) {
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tag-management-list article {
     grid-template-columns: 1fr;
   }
 

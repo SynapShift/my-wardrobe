@@ -122,6 +122,7 @@ Goal: users can create and save outfits from existing wardrobe items.
 - Better tags:
   - Custom tags for clothing and outfits.
   - P1 first slice: wardrobe tags are collected automatically and can be used as filter chips.
+  - P1 hardening: item tags can be renamed or removed from the settings page.
 
 ### Related Outfit Design
 

@@ -736,6 +736,58 @@ function App() {
     updateWearLogs(wearLogs.filter((log) => log.id !== wearLogId));
   };
 
+  const handleRenameItemTag = (tag: string, nextTag: string) => {
+    const normalizedTag = nextTag.trim();
+    if (!normalizedTag || normalizedTag === tag) {
+      return;
+    }
+
+    const timestamp = new Date().toISOString();
+    updateItems(
+      items.map((item) => {
+        if (!item.tags.includes(tag)) {
+          return item;
+        }
+
+        return {
+          ...item,
+          tags: [...new Set(item.tags.map((itemTag) => (itemTag === tag ? normalizedTag : itemTag)))],
+          updatedAt: timestamp,
+        };
+      }),
+    );
+    if (tagFilter === tag) {
+      setTagFilter(normalizedTag);
+    }
+    showToast("标签已重命名");
+  };
+
+  const handleDeleteItemTag = (tag: string) => {
+    const confirmed = window.confirm(`确定要删除“${tag}”标签吗？这个标签会从所有衣服上移除。`);
+    if (!confirmed) {
+      return;
+    }
+
+    const timestamp = new Date().toISOString();
+    updateItems(
+      items.map((item) => {
+        if (!item.tags.includes(tag)) {
+          return item;
+        }
+
+        return {
+          ...item,
+          tags: item.tags.filter((itemTag) => itemTag !== tag),
+          updatedAt: timestamp,
+        };
+      }),
+    );
+    if (tagFilter === tag) {
+      setTagFilter("全部");
+    }
+    showToast("标签已删除");
+  };
+
   const handleLogItemWear = (itemId: string, date: string, notes: string) => {
     const nextLog = createWearLog({
       date,
@@ -1140,6 +1192,8 @@ function App() {
             onExportCsv={handleExportCsv}
             onExportImagesZip={handleExportImagesZip}
             onImportBackup={handleImportBackup}
+            onDeleteItemTag={handleDeleteItemTag}
+            onRenameItemTag={handleRenameItemTag}
           />
         )}
       </main>
@@ -2443,6 +2497,8 @@ function SettingsView({
   onExportCsv,
   onExportImagesZip,
   onImportBackup,
+  onDeleteItemTag,
+  onRenameItemTag,
 }: {
   items: ClothingItem[];
   outfits: Outfit[];
@@ -2451,6 +2507,8 @@ function SettingsView({
   onExportCsv: () => void;
   onExportImagesZip: () => void;
   onImportBackup: (event: ChangeEvent<HTMLInputElement>) => void;
+  onDeleteItemTag: (tag: string) => void;
+  onRenameItemTag: (tag: string, nextTag: string) => void;
 }) {
   const recentWearLogs = wearLogs.slice(0, 5);
   const itemStats = items.map((item) => {
@@ -2479,6 +2537,7 @@ function SettingsView({
       : undefined;
   const categoryDistribution = getDistribution(items.map((item) => item.category));
   const colorDistribution = getDistribution(items.map((item) => item.primaryColor));
+  const tagStats = getDistribution(items.flatMap((item) => item.tags));
   const pricedItems = items.filter(
     (item) => typeof item.purchasePrice === "number" && !Number.isNaN(item.purchasePrice),
   );
@@ -2646,6 +2705,46 @@ function SettingsView({
                 <div>
                   <strong>{stat.item.name}</strong>
                   <span>{stat.lastWorn ? `上次穿：${stat.lastWorn}` : "还没穿过"}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="tag-management-section">
+        <div className="section-title">
+          <h2>标签管理</h2>
+          <span>{tagStats.length} 个</span>
+        </div>
+        {tagStats.length === 0 ? (
+          <div className="empty-state compact">
+            <h3>还没有标签</h3>
+            <p>在添加或编辑衣服时输入标签，这里会自动汇总。</p>
+          </div>
+        ) : (
+          <div className="tag-management-list">
+            {tagStats.map((tag) => (
+              <article key={tag.label}>
+                <div>
+                  <strong>{tag.label}</strong>
+                  <span>{tag.count} 件衣服使用</span>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextTag = window.prompt("重命名标签", tag.label);
+                      if (nextTag !== null) {
+                        onRenameItemTag(tag.label, nextTag);
+                      }
+                    }}
+                  >
+                    重命名
+                  </button>
+                  <button className="danger-text-button" type="button" onClick={() => onDeleteItemTag(tag.label)}>
+                    删除
+                  </button>
                 </div>
               </article>
             ))}

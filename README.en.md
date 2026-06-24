@@ -103,7 +103,7 @@ public/              PWA manifest, icon, and service worker
 - Authentication and multi-user cloud sync
 - Cloud image storage after R2 is enabled
 - Import local data into a cloud account
-- Tag and category management
+- Category management
 - Tests for storage, CSV/ZIP export, and outfit suggestions
 - Larger-screen UI polish
 
