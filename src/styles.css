@@ -971,6 +971,56 @@ button {
   gap: 10px;
 }
 
+.inline-management-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.inline-management-form input {
+  min-width: 0;
+  border: 1px solid #e2d4c5;
+  border-radius: 999px;
+  background: #fffaf4;
+  color: #2c261f;
+  padding: 11px 14px;
+}
+
+.inline-management-form button {
+  border-radius: 999px;
+  background: #2c261f;
+  color: #fffaf4;
+  padding: 0 16px;
+}
+
+.management-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.management-chip-list span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  border: 1px solid #e6d8ca;
+  border-radius: 999px;
+  background: #fffaf4;
+  color: #2c261f;
+  padding: 7px 8px 7px 12px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.management-chip-list button {
+  border-radius: 999px;
+  background: #fff1ee;
+  color: #b23b2d;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+
 .management-list article {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -1311,6 +1361,14 @@ button {
 
   .management-list select {
     width: 100%;
+  }
+
+  .inline-management-form {
+    grid-template-columns: 1fr;
+  }
+
+  .inline-management-form button {
+    min-height: 42px;
   }
 
   .page-heading {

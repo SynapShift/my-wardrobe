@@ -1,13 +1,4 @@
-export type Category =
-  | "上衣"
-  | "下装"
-  | "外套"
-  | "连衣裙"
-  | "鞋子"
-  | "包包"
-  | "配饰"
-  | "运动服"
-  | "家居服";
+export type Category = string;
 
 export type Season = "春季" | "夏季" | "秋季" | "冬季" | "四季";
 

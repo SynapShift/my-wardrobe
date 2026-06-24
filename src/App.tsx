@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { categories, colors, seasons } from "./data";
+import { categories as defaultCategories, colors, seasons } from "./data";
 import type { Category, ClothingItem, DraftClothingItem, Outfit, Season, WearLog } from "./types";
 import { createItem, createOutfit, createWearLog, wardrobeStore } from "./wardrobeStore";
 import { createZipBlob } from "./zip";
@@ -46,6 +46,7 @@ const placeholderImage =
 type WardrobeBackup = {
   app: "my-wardrobe";
   version: 1;
+  customCategories?: string[];
   exportedAt: string;
   items: ClothingItem[];
   outfits: Outfit[];
@@ -104,7 +105,12 @@ const getDistribution = (values: string[]) => {
     .sort((first, second) => second.count - first.count || first.label.localeCompare(second.label));
 };
 
-const outfitRecipeByCategory: Record<Category, Category[]> = {
+const getUniqueSortedValues = (values: string[]) =>
+  [...new Set(values.map((value) => value.trim()).filter(Boolean))].sort((first, second) =>
+    first.localeCompare(second),
+  );
+
+const outfitRecipeByCategory: Record<string, Category[]> = {
   上衣: ["下装", "鞋子", "外套", "包包"],
   下装: ["上衣", "鞋子", "外套", "包包"],
   外套: ["上衣", "下装", "鞋子"],
@@ -115,6 +121,8 @@ const outfitRecipeByCategory: Record<Category, Category[]> = {
   运动服: ["鞋子", "包包", "配饰"],
   家居服: ["鞋子", "配饰"],
 };
+
+const fallbackCompanionCategories = ["上衣", "下装", "鞋子", "外套", "包包"];
 
 const neutralColors = new Set(["黑色", "白色", "灰色", "米色", "棕色", "牛仔蓝"]);
 
@@ -143,7 +151,7 @@ const getOutfitKey = (itemIds: string[]) => [...new Set(itemIds)].sort().join("|
 
 const getOutfitSuggestions = (anchor: ClothingItem, items: ClothingItem[], outfits: Outfit[]): OutfitSuggestion[] => {
   const savedOutfitKeys = new Set(outfits.map((outfit) => getOutfitKey(outfit.itemIds)));
-  const companionCategories = outfitRecipeByCategory[anchor.category];
+  const companionCategories = outfitRecipeByCategory[anchor.category] ?? fallbackCompanionCategories;
   const companionItems = companionCategories
     .map((category) =>
       items
@@ -326,6 +334,7 @@ function App() {
   const [items, setItems] = useState<ClothingItem[]>(() => wardrobeStore.loadItems());
   const [outfits, setOutfits] = useState<Outfit[]>(() => wardrobeStore.loadOutfits());
   const [wearLogs, setWearLogs] = useState<WearLog[]>(() => wardrobeStore.loadWearLogs());
+  const [customCategories, setCustomCategories] = useState<string[]>(() => wardrobeStore.loadCustomCategories());
   const [view, setView] = useState<View>("wardrobe");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedOutfitId, setSelectedOutfitId] = useState<string | null>(null);
@@ -409,6 +418,10 @@ function App() {
     () => [...new Set(items.flatMap((item) => item.tags))].sort((first, second) => first.localeCompare(second)),
     [items],
   );
+  const availableCategories = useMemo(
+    () => getUniqueSortedValues([...defaultCategories, ...customCategories, ...items.map((item) => item.category)]),
+    [customCategories, items],
+  );
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -470,6 +483,12 @@ function App() {
   const updateWearLogs = (nextWearLogs: WearLog[]) => {
     setWearLogs(nextWearLogs);
     wardrobeStore.saveWearLogs(nextWearLogs);
+  };
+
+  const updateCustomCategories = (nextCategories: string[]) => {
+    const normalizedCategories = getUniqueSortedValues(nextCategories);
+    setCustomCategories(normalizedCategories);
+    wardrobeStore.saveCustomCategories(normalizedCategories);
   };
 
   const cleanupStoredImage = (imageId?: string) => {
@@ -788,6 +807,38 @@ function App() {
     showToast("标签已删除");
   };
 
+  const handleCreateCustomCategory = (category: string) => {
+    const normalizedCategory = category.trim();
+    if (!normalizedCategory) {
+      return;
+    }
+
+    if (availableCategories.includes(normalizedCategory)) {
+      showToast("这个分类已经存在");
+      return;
+    }
+
+    updateCustomCategories([...customCategories, normalizedCategory]);
+    showToast("分类已新增");
+  };
+
+  const handleDeleteCustomCategory = (category: string) => {
+    const confirmed = window.confirm(
+      items.some((item) => item.category === category)
+        ? `“${category}”下还有衣服。确定只从自定义分类列表移除它吗？衣服数据不会被删除。`
+        : `确定要删除“${category}”分类吗？`,
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    updateCustomCategories(customCategories.filter((itemCategory) => itemCategory !== category));
+    if (categoryFilter === category && !items.some((item) => item.category === category)) {
+      setCategoryFilter("全部");
+    }
+    showToast("分类已删除");
+  };
+
   const handleMoveItemCategory = (category: Category, nextCategory: Category) => {
     if (category === nextCategory) {
       return;
@@ -860,6 +911,7 @@ function App() {
     const backup: WardrobeBackup = {
       app: "my-wardrobe",
       version: 1,
+      customCategories,
       exportedAt: new Date().toISOString(),
       items: exportItems,
       outfits,
@@ -1025,6 +1077,13 @@ function App() {
       updateItems(parsed.items);
       updateOutfits(parsed.outfits);
       updateWearLogs(parsed.wearLogs);
+      updateCustomCategories([
+        ...customCategories,
+        ...(parsed.customCategories ?? []),
+        ...parsed.items
+          .map((item) => item.category)
+          .filter((category) => !defaultCategories.includes(category)),
+      ]);
       setSelectedId(null);
       setSelectedOutfitId(null);
       setView("settings");
@@ -1085,6 +1144,7 @@ function App() {
         {view === "wardrobe" && (
           <WardrobeView
             items={filteredItems}
+            categories={availableCategories}
             wearLogs={wearLogs}
             query={query}
             setQuery={setQuery}
@@ -1107,6 +1167,7 @@ function App() {
 
         {view === "add" && (
           <AddItemView
+            categories={availableCategories}
             draft={draft}
             setDraft={setDraft}
             onUpload={handleUpload}
@@ -1122,6 +1183,7 @@ function App() {
 
         {view === "editItem" && selectedItem && (
           <AddItemView
+            categories={availableCategories}
             draft={draft}
             setDraft={setDraft}
             onUpload={handleUpload}
@@ -1179,6 +1241,7 @@ function App() {
 
         {view === "newOutfit" && (
           <NewOutfitView
+            categories={availableCategories}
             draft={outfitDraft}
             items={displayItems}
             setDraft={setOutfitDraft}
@@ -1194,6 +1257,7 @@ function App() {
 
         {view === "editOutfit" && selectedOutfit && (
           <NewOutfitView
+            categories={availableCategories}
             draft={outfitDraft}
             items={displayItems}
             setDraft={setOutfitDraft}
@@ -1213,6 +1277,8 @@ function App() {
 
         {view === "settings" && (
           <SettingsView
+            categories={availableCategories}
+            customCategories={customCategories}
             items={displayItems}
             outfits={outfits}
             wearLogs={wearLogs}
@@ -1221,6 +1287,8 @@ function App() {
             onExportImagesZip={handleExportImagesZip}
             onImportBackup={handleImportBackup}
             onDeleteItemTag={handleDeleteItemTag}
+            onCreateCustomCategory={handleCreateCustomCategory}
+            onDeleteCustomCategory={handleDeleteCustomCategory}
             onMoveItemCategory={handleMoveItemCategory}
             onRenameItemTag={handleRenameItemTag}
           />
@@ -1250,6 +1318,7 @@ function App() {
 }
 
 type WardrobeViewProps = {
+  categories: string[];
   items: ClothingItem[];
   wearLogs: WearLog[];
   query: string;
@@ -1271,6 +1340,7 @@ type WardrobeViewProps = {
 };
 
 function WardrobeView({
+  categories,
   items,
   wearLogs,
   query,
@@ -1396,6 +1466,7 @@ function FilterRow({
 }
 
 function AddItemView({
+  categories,
   draft,
   setDraft,
   onUpload,
@@ -1404,6 +1475,7 @@ function AddItemView({
   submitLabel,
   title,
 }: {
+  categories: string[];
   draft: DraftClothingItem;
   setDraft: (draft: DraftClothingItem) => void;
   onUpload: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -1839,6 +1911,7 @@ function OutfitsView({
 }
 
 function NewOutfitView({
+  categories,
   draft,
   items,
   setDraft,
@@ -1847,6 +1920,7 @@ function NewOutfitView({
   submitLabel,
   title,
 }: {
+  categories: string[];
   draft: typeof emptyOutfitDraft;
   items: ClothingItem[];
   setDraft: (draft: typeof emptyOutfitDraft) => void;
@@ -2519,6 +2593,8 @@ function PriceDistributionList({ items, total }: { items: Array<{ label: string;
 }
 
 function SettingsView({
+  categories,
+  customCategories,
   items,
   outfits,
   wearLogs,
@@ -2526,10 +2602,14 @@ function SettingsView({
   onExportCsv,
   onExportImagesZip,
   onImportBackup,
+  onCreateCustomCategory,
+  onDeleteCustomCategory,
   onDeleteItemTag,
   onMoveItemCategory,
   onRenameItemTag,
 }: {
+  categories: string[];
+  customCategories: string[];
   items: ClothingItem[];
   outfits: Outfit[];
   wearLogs: WearLog[];
@@ -2537,10 +2617,13 @@ function SettingsView({
   onExportCsv: () => void;
   onExportImagesZip: () => void;
   onImportBackup: (event: ChangeEvent<HTMLInputElement>) => void;
+  onCreateCustomCategory: (category: string) => void;
+  onDeleteCustomCategory: (category: string) => void;
   onDeleteItemTag: (tag: string) => void;
   onMoveItemCategory: (category: Category, nextCategory: Category) => void;
   onRenameItemTag: (tag: string, nextTag: string) => void;
 }) {
+  const [categoryDraft, setCategoryDraft] = useState("");
   const recentWearLogs = wearLogs.slice(0, 5);
   const itemStats = items.map((item) => {
     const itemWearLogs = getItemWearLogs(item.id, wearLogs);
@@ -2601,6 +2684,11 @@ function SettingsView({
       return String(first.lastWorn ?? "").localeCompare(String(second.lastWorn ?? ""));
     })
     .slice(0, 5);
+  const submitCategory = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onCreateCustomCategory(categoryDraft);
+    setCategoryDraft("");
+  };
 
   return (
     <section className="plain-screen">
@@ -2685,6 +2773,27 @@ function SettingsView({
           <h2>分类管理</h2>
           <span>{categoryDistribution.length} 类</span>
         </div>
+        <form className="inline-management-form" onSubmit={submitCategory}>
+          <input
+            aria-label="新分类名称"
+            placeholder="新增分类，例如：礼服"
+            value={categoryDraft}
+            onChange={(event) => setCategoryDraft(event.target.value)}
+          />
+          <button type="submit">新增</button>
+        </form>
+        {customCategories.length > 0 && (
+          <div className="management-chip-list" aria-label="自定义分类">
+            {customCategories.map((category) => (
+              <span key={category}>
+                {category}
+                <button type="button" onClick={() => onDeleteCustomCategory(category)}>
+                  删除
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
         {categoryDistribution.length === 0 ? (
           <div className="empty-state compact">
             <h3>还没有分类数据</h3>

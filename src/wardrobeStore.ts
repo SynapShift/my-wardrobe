@@ -4,8 +4,10 @@ import {
   createOutfit,
   createWearLog,
   loadItems,
+  loadCustomCategories,
   loadOutfits,
   loadWearLogs,
+  saveCustomCategories,
   saveItems,
   saveOutfits,
   saveWearLogs,
@@ -18,10 +20,12 @@ export type WardrobeStore = {
   deleteImageBlob: (imageId: string) => Promise<undefined>;
   getImageBlob: (imageId: string) => Promise<Blob | undefined>;
   isCloudEnabled: boolean;
+  loadCustomCategories: () => string[];
   loadItems: () => ClothingItem[];
   loadOutfits: () => Outfit[];
   loadWearLogs: () => WearLog[];
   mode: WardrobeStoreMode;
+  saveCustomCategories: (categories: string[]) => void;
   saveImageBlob: (file: Blob) => Promise<string>;
   saveItems: (items: ClothingItem[]) => void;
   saveOutfits: (outfits: Outfit[]) => void;
@@ -32,10 +36,12 @@ const localWardrobeStore: WardrobeStore = {
   deleteImageBlob,
   getImageBlob,
   isCloudEnabled: false,
+  loadCustomCategories,
   loadItems,
   loadOutfits,
   loadWearLogs,
   mode: "local",
+  saveCustomCategories,
   saveImageBlob,
   saveItems,
   saveOutfits,

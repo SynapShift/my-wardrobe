@@ -4,6 +4,7 @@ import type { ClothingItem, DraftClothingItem, Outfit, WearLog } from "./types";
 const itemsKey = "my-wardrobe.items";
 const outfitsKey = "my-wardrobe.outfits";
 const wearLogsKey = "my-wardrobe.wearLogs";
+const customCategoriesKey = "my-wardrobe.customCategories";
 
 const readJson = <T,>(key: string, fallback: T): T => {
   const raw = localStorage.getItem(key);
@@ -33,6 +34,10 @@ export const saveOutfits = (outfits: Outfit[]) => writeJson(outfitsKey, outfits)
 export const loadWearLogs = (): WearLog[] => readJson(wearLogsKey, []);
 
 export const saveWearLogs = (wearLogs: WearLog[]) => writeJson(wearLogsKey, wearLogs);
+
+export const loadCustomCategories = (): string[] => readJson(customCategoriesKey, []);
+
+export const saveCustomCategories = (categories: string[]) => writeJson(customCategoriesKey, categories);
 
 export const createItem = (draft: DraftClothingItem): ClothingItem => {
   const timestamp = new Date().toISOString();

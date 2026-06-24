@@ -8,8 +8,8 @@ Live demo: [https://my-wardrobe-5l1.pages.dev](https://my-wardrobe-5l1.pages.dev
 
 ## Features
 
-- Add, edit, and delete clothing items with photo, category, season, color, price, brand, size, purchase date, purchase channel, tags, and notes
-- Search and filter wardrobe items by category, color, season, and tags
+- Add, edit, and delete clothing items with photo, custom category, season, color, price, brand, size, purchase date, purchase channel, tags, and notes
+- Search and filter wardrobe items by custom category, color, season, and tags
 - Create, edit, and delete outfits, with related outfits shown on item detail pages
 - Generate lightweight outfit suggestions based on category, season, and color rules
 - Log wear dates and notes for clothing items or outfits
@@ -103,7 +103,6 @@ public/              PWA manifest, icon, and service worker
 - Authentication and multi-user cloud sync
 - Cloud image storage after R2 is enabled
 - Import local data into a cloud account
-- Custom categories
 - Tests for storage, CSV/ZIP export, and outfit suggestions
 - Larger-screen UI polish
 
