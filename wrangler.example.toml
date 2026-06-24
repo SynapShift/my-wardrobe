@@ -1,0 +1,15 @@
+name = "my-wardrobe"
+compatibility_date = "2026-06-23"
+pages_build_output_dir = "dist"
+
+# Copy this file to wrangler.toml only when you want to run optional cloud sync.
+# The open source app works without these bindings.
+
+[[d1_databases]]
+binding = "WARDROBE_DB"
+database_name = "my-wardrobe"
+database_id = "replace-with-cloudflare-d1-database-id"
+
+[[r2_buckets]]
+binding = "WARDROBE_IMAGES"
+bucket_name = "my-wardrobe-images"

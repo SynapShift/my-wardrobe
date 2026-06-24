@@ -1,0 +1,19 @@
+{
+  "name": "我的衣柜",
+  "short_name": "衣柜",
+  "description": "移动端优先的个人数字衣柜，支持衣服整理、穿搭、穿着记录和本地备份。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8f3ed",
+  "theme_color": "#2c261f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
