@@ -788,6 +788,34 @@ function App() {
     showToast("标签已删除");
   };
 
+  const handleMoveItemCategory = (category: Category, nextCategory: Category) => {
+    if (category === nextCategory) {
+      return;
+    }
+
+    const confirmed = window.confirm(`确定要把所有“${category}”分类的衣服移动到“${nextCategory}”吗？`);
+    if (!confirmed) {
+      return;
+    }
+
+    const timestamp = new Date().toISOString();
+    updateItems(
+      items.map((item) =>
+        item.category === category
+          ? {
+              ...item,
+              category: nextCategory,
+              updatedAt: timestamp,
+            }
+          : item,
+      ),
+    );
+    if (categoryFilter === category) {
+      setCategoryFilter(nextCategory);
+    }
+    showToast("分类已更新");
+  };
+
   const handleLogItemWear = (itemId: string, date: string, notes: string) => {
     const nextLog = createWearLog({
       date,
@@ -1193,6 +1221,7 @@ function App() {
             onExportImagesZip={handleExportImagesZip}
             onImportBackup={handleImportBackup}
             onDeleteItemTag={handleDeleteItemTag}
+            onMoveItemCategory={handleMoveItemCategory}
             onRenameItemTag={handleRenameItemTag}
           />
         )}
@@ -2498,6 +2527,7 @@ function SettingsView({
   onExportImagesZip,
   onImportBackup,
   onDeleteItemTag,
+  onMoveItemCategory,
   onRenameItemTag,
 }: {
   items: ClothingItem[];
@@ -2508,6 +2538,7 @@ function SettingsView({
   onExportImagesZip: () => void;
   onImportBackup: (event: ChangeEvent<HTMLInputElement>) => void;
   onDeleteItemTag: (tag: string) => void;
+  onMoveItemCategory: (category: Category, nextCategory: Category) => void;
   onRenameItemTag: (tag: string, nextTag: string) => void;
 }) {
   const recentWearLogs = wearLogs.slice(0, 5);
@@ -2649,6 +2680,39 @@ function SettingsView({
         <DistributionList items={categoryDistribution} total={items.length} />
       </section>
 
+      <section className="category-management-section">
+        <div className="section-title">
+          <h2>分类管理</h2>
+          <span>{categoryDistribution.length} 类</span>
+        </div>
+        {categoryDistribution.length === 0 ? (
+          <div className="empty-state compact">
+            <h3>还没有分类数据</h3>
+            <p>添加衣服后，这里会显示分类使用情况。</p>
+          </div>
+        ) : (
+          <div className="management-list">
+            {categoryDistribution.map((category) => (
+              <article key={category.label}>
+                <div>
+                  <strong>{category.label}</strong>
+                  <span>{category.count} 件衣服</span>
+                </div>
+                <select
+                  aria-label={`将${category.label}移动到其他分类`}
+                  value={category.label}
+                  onChange={(event) => onMoveItemCategory(category.label as Category, event.target.value as Category)}
+                >
+                  {categories.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
       <section className="distribution-section">
         <div className="section-title">
           <h2>颜色分布</h2>
@@ -2723,7 +2787,7 @@ function SettingsView({
             <p>在添加或编辑衣服时输入标签，这里会自动汇总。</p>
           </div>
         ) : (
-          <div className="tag-management-list">
+          <div className="management-list">
             {tagStats.map((tag) => (
               <article key={tag.label}>
                 <div>

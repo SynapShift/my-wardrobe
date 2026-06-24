@@ -73,6 +73,7 @@ Goal: users can upload clothing photos, classify them, browse their wardrobe, an
 - Accessories
 - Sportswear
 - Homewear
+- P1 hardening: settings can batch-move items from one built-in category to another.
 
 ### Default Seasons
 

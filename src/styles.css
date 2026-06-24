@@ -961,12 +961,17 @@ button {
   gap: 12px;
 }
 
-.tag-management-list {
+.category-management-section {
+  display: grid;
+  gap: 12px;
+}
+
+.management-list {
   display: grid;
   gap: 10px;
 }
 
-.tag-management-list article {
+.management-list article {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 12px;
@@ -977,29 +982,29 @@ button {
   padding: 12px;
 }
 
-.tag-management-list article > div:first-child {
+.management-list article > div:first-child {
   display: grid;
   min-width: 0;
   gap: 4px;
 }
 
-.tag-management-list article > div:last-child {
+.management-list article > div:last-child {
   display: flex;
   gap: 8px;
 }
 
-.tag-management-list strong,
-.tag-management-list span {
+.management-list strong,
+.management-list span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.tag-management-list span {
+.management-list span {
   color: #7b6c5f;
 }
 
-.tag-management-list button {
+.management-list button {
   border-radius: 999px;
   background: #efe5dc;
   color: #2c261f;
@@ -1009,7 +1014,18 @@ button {
   white-space: nowrap;
 }
 
-.tag-management-list .danger-text-button {
+.management-list select {
+  min-width: 128px;
+  border: 1px solid #e2d4c5;
+  border-radius: 999px;
+  background: #efe5dc;
+  color: #2c261f;
+  padding: 8px 11px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.management-list .danger-text-button {
   background: #fff1ee;
   color: #b23b2d;
 }
@@ -1289,8 +1305,12 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .tag-management-list article {
+  .management-list article {
     grid-template-columns: 1fr;
+  }
+
+  .management-list select {
+    width: 100%;
   }
 
   .page-heading {
