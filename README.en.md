@@ -33,6 +33,7 @@ Production build:
 ```bash
 npm run build
 npm run preview
+npm test
 ```
 
 ## Data And Privacy
@@ -103,7 +104,7 @@ public/              PWA manifest, icon, and service worker
 - Authentication and multi-user cloud sync
 - Cloud image storage after R2 is enabled
 - Import local data into a cloud account
-- Tests for storage, CSV/ZIP export, and outfit suggestions
+- Broader tests for forms, import/export, and cloud sync
 - Larger-screen UI polish
 
 ## License

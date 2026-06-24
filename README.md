@@ -33,6 +33,7 @@ npm run dev
 ```bash
 npm run build
 npm run preview
+npm test
 ```
 
 ## 数据与隐私
@@ -103,7 +104,7 @@ public/              PWA manifest、图标、service worker
 - 登录和多用户云同步
 - R2 启用后的云端图片存储
 - 将本地数据导入云端账号
-- 为存储、CSV/ZIP 导出、穿搭建议补充测试
+- 扩大表单、导入导出和云同步测试覆盖
 - 大屏界面优化
 
 ## 许可证

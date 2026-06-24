@@ -222,6 +222,7 @@ Goal: add intelligence and optional sharing while keeping the core app private a
   - P0/P2 first slice: JSON export/import is available for local backup.
   - P3 first slice: CSV export is available for items, outfits, and wear logs in one spreadsheet-friendly file.
   - P3 first slice: image ZIP export is available with a manifest mapping files back to wardrobe items.
+  - P3 hardening: storage, CSV escaping, ZIP structure, and outfit suggestion rules have unit tests.
 - Optional cloud mode:
   - User accounts.
   - Sync across devices.
